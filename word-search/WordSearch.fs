@@ -1,13 +1,8 @@
 ﻿module WordSearch
 
 open System
-
-let TryToGetWordsCoordinatesHorizontallyLeftToRight (line: string) (vertialIndex: int) (wordToSearch: string) =
-    match (line).IndexOf(wordToSearch) with
-    | -1 -> wordToSearch, None
-    | index -> wordToSearch, Some((index + 1, vertialIndex), (index + String.length wordToSearch, vertialIndex))
-
-let TryToGetWordsCoordinatesHorizontallyRightToLeft (line: string) (vertialIndex: int) (wordToSearch: string) =
+let TryToGetWordsCoordinatesHorizontallyRightToLeft
+    (wordToSearch: string) (verticalIndex: int) (line: string) =
     let wordToSearchReversed =
         wordToSearch.ToCharArray()
         |> Array.rev
@@ -15,13 +10,25 @@ let TryToGetWordsCoordinatesHorizontallyRightToLeft (line: string) (vertialIndex
 
     match (line).IndexOf(wordToSearchReversed) with
     | -1 -> wordToSearch, None
-    | index -> wordToSearch, Some((index + String.length wordToSearch, vertialIndex), (index + 1, vertialIndex))
+    | index -> wordToSearch,
+                Some((index + String.length wordToSearch, verticalIndex + 1),
+                     (index + 1, verticalIndex + 1))
 
-let binder (wordsToSearchFor: string list) (verticalIndex: int) (gridElement: string) =
+let TryToGetWordsCoordinatesHorizontallyLeftToRight
+    (wordToSearch: string) (verticalIndex: int) (line: string)  =
+    match (line).IndexOf(wordToSearch) with
+    | -1 -> wordToSearch, None
+    | index -> wordToSearch,
+                Some((index + 1, verticalIndex + 1),
+                     (index + String.length wordToSearch, verticalIndex + 1))
+
+let binder (grid: string list) (wordToSearchFor: string) =
     let list1 =
-        wordsToSearchFor |> List.map (TryToGetWordsCoordinatesHorizontallyRightToLeft gridElement (verticalIndex + 1))
+        grid
+        |> List.mapi (TryToGetWordsCoordinatesHorizontallyRightToLeft wordToSearchFor)
     let list2 =
-        wordsToSearchFor |> List.map (TryToGetWordsCoordinatesHorizontallyLeftToRight gridElement (verticalIndex + 1))
+        grid
+        |> List.mapi (TryToGetWordsCoordinatesHorizontallyLeftToRight wordToSearchFor)
     
     let combinedLists = List.append list1 list2
     let combinedListsSorted = combinedLists
@@ -30,10 +37,8 @@ let binder (wordsToSearchFor: string list) (verticalIndex: int) (gridElement: st
     combinedListsSorted
 
 let search (grid: string list) (wordsToSearchFor: string list) =
-    let a = grid
-            |> List.mapi (binder wordsToSearchFor)
-            
+    let a = wordsToSearchFor
+            |> List.map (binder grid)
     let b = a |> List.collect id
-            
     let c = b |> Map.ofList
     c
