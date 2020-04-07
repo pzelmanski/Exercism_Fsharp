@@ -30,15 +30,13 @@ let binder (grid: string list) (wordToSearchFor: string) =
         grid
         |> List.mapi (TryToGetWordsCoordinatesHorizontallyLeftToRight wordToSearchFor)
     
-    let combinedLists = List.append list1 list2
-    let combinedListsSorted = combinedLists
-                              |> List.sortByDescending (fun item -> (snd item).IsSome)
-                              |> List.distinctBy fst
-    combinedListsSorted
+    List.append list1 list2
+        |> List.sortByDescending (fun item -> (snd item).IsSome)
+        |> List.distinctBy fst
+    
 
 let search (grid: string list) (wordsToSearchFor: string list) =
-    let a = wordsToSearchFor
+    wordsToSearchFor
             |> List.map (binder grid)
-    let b = a |> List.collect id
-    let c = b |> Map.ofList
-    c
+            |> List.collect id
+            |> Map.ofList
